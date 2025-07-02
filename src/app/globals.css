@@ -1,0 +1,75 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --shadow-mentor-shadow: 0px 4px 20px rgba(110, 127, 185, 0.1);
+
+  --inset-54\%: 54%;
+  --inset-40\%: 40%;
+
+  --color-primary: #bd24df;
+  --color-secondary: #2d6ade;
+  --color-body-bg: #040D26;
+  --color-darkmode: #0c1b44;
+  --color-tablebg: #132259;
+  --color-border: #091945;
+  --color-lightblue: #8a9bca;
+  --color-lightsky: #ECF2FF;
+  --color-lightpurple: #B4C7ED;
+
+  --blur-390: 390px;
+
+  --background-image-banner-image: linear-gradient(
+    90deg,
+    #bd24df80,
+    #2d6ade80 97.15%
+  );
+  --background-image-simple-bg: linear-gradient(
+    90deg,
+    rgba(189, 36, 223, 0.1),
+    rgba(45, 106, 222, 0.1) 97.15%
+  );
+  --background-image-arrow-bg: url('/images/simple/arrow-bg.png');
+  --background-image-newsletter: url('/images/newsletter/hands.svg');
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+
+  section {
+    @apply py-14 bg-body-bg;
+  }
+
+  h1 {
+    @apply text-white font-bold lg:text-7xl sm:text-6xl text-5xl;
+  }
+
+  h2 {
+    @apply text-lightsky sm:text-5xl text-4xl font-bold;
+  }
+}
+
+@layer utilities {
+  .container {
+    @apply max-w-7xl mx-auto w-full px-4;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
