@@ -6,7 +6,6 @@ import jwt from 'jsonwebtoken';
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    console.log('Session:', session);
 
     if (!session?.user?.email || !session.user.id) {
       console.error('Invalid session:', session);
