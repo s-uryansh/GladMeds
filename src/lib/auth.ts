@@ -87,13 +87,6 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
      async redirect({ url, baseUrl }) {
-      if (process.env.JWT_SECRET) {
-        try {
-        } catch (error) {
-          console.error('Token generation error:', error);
-        }
-      }
-      
       return `${baseUrl}/api/auth/post-login`;
     },
   },
@@ -101,6 +94,8 @@ export const authOptions: NextAuthOptions = {
         signIn: '/auth/signin',
         error: '/auth/error',
     },
+  secret: process.env.NEXTAUTH_SECRET,
+
 }
 export function getUserIdFromToken(req: NextRequest): string | null {
   try {
