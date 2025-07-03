@@ -4,6 +4,7 @@ import Link from 'next/link'
 import SocialSignUp from '../SocialSignUp'
 import toast from 'react-hot-toast';
 import Logo from '../../layout/header/logo'
+import TermsModal from '../legal/TermsModal';
 
 const SignUp = ({onSuccess}: {onSuccess: () => void}) => {
   const [form, setForm] = useState({
@@ -20,6 +21,8 @@ const SignUp = ({onSuccess}: {onSuccess: () => void}) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [showTerms, setShowTerms] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -27,6 +30,12 @@ const SignUp = ({onSuccess}: {onSuccess: () => void}) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!termsAccepted) {
+      setError('You must accept the Terms of Service to continue')
+      return
+    }
+    
     setLoading(true)
     setError('')
     setSuccess('')
@@ -38,6 +47,8 @@ const SignUp = ({onSuccess}: {onSuccess: () => void}) => {
         body: JSON.stringify({
           ...form,
           age: Number(form.age),
+          termsAccepted: true,
+          termsAcceptedAt: new Date().toISOString()
         }),
       })
 
@@ -46,7 +57,6 @@ const SignUp = ({onSuccess}: {onSuccess: () => void}) => {
       if (!res.ok) {
         setError(data.error || 'Registration Failed!');
         toast.error(data.error || 'Registration Failed');
-
       } else {
         setSuccess('Registration Successful!')
         setForm({
@@ -59,6 +69,7 @@ const SignUp = ({onSuccess}: {onSuccess: () => void}) => {
           phone: '',
           address: '',
         })
+        setTermsAccepted(false)
         toast.success('Registration successful!');
         onSuccess();
       }
@@ -194,11 +205,38 @@ const SignUp = ({onSuccess}: {onSuccess: () => void}) => {
           />
         </div>
 
+        {/* Terms and Conditions Checkbox */}
+        <div className='mb-[22px]'>
+          <div className='flex items-center space-x-2'>
+            <input
+              type='checkbox'
+              id='terms'
+              checked={termsAccepted}
+              onChange={(e) => setTermsAccepted(e.target.checked)}
+              className='w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary'
+            />
+            <label htmlFor='terms' className='text-sm text-white'>
+              I agree to the{' '}
+              <button
+                type='button'
+                onClick={() => setShowTerms(true)}
+                className='text-primary hover:underline'
+              >
+                Terms of Service
+              </button>{' '}
+              and{' '}
+              <Link href='/privacy' className='text-primary hover:underline'>
+                Privacy Policy
+              </Link>
+            </label>
+          </div>
+        </div>
+
         <div className='mb-9'>
           <button
             type='submit'
-            disabled={loading}
-            className='flex w-full items-center text-lg text-white font-medium justify-center rounded-md bg-primary px-5 py-3 hover:bg-transparent hover:text-primary border-primary border'>
+            disabled={loading || !termsAccepted}
+            className='flex w-full items-center text-lg text-white font-medium justify-center rounded-md bg-primary px-5 py-3 hover:bg-transparent hover:text-primary border-primary border disabled:opacity-50 disabled:cursor-not-allowed'>
             {loading ? 'Signing Up...' : 'Sign Up'}
           </button>
         </div>
@@ -208,22 +246,27 @@ const SignUp = ({onSuccess}: {onSuccess: () => void}) => {
       {success && <p className='text-green-500 mb-4'>{success}</p>}
 
       <p className='text-white text-base'>
-        By creating an account you agree to our{' '}
-        <a href='/#' className='text-primary hover:underline'>
-          Privacy
-        </a>{' '}
-        and{' '}
-        <a href='/#' className='text-primary hover:underline'>
-          Policy
-        </a>
-      </p>
-
-      <p className='text-white text-base'>
         Already have an account?
         <Link href='/' className='pl-2 text-primary hover:underline'>
           Sign In
         </Link>
       </p>
+
+      {/* Terms Modal */}
+      {showTerms && (
+        <TermsModal
+          isOpen={showTerms}
+          onAccept={() => {
+            setTermsAccepted(true)
+            setShowTerms(false)
+          }}
+          onDecline={() => {
+            setTermsAccepted(false)
+            setShowTerms(false)
+          }}
+          userEmail={form.email}
+        />
+      )}
     </>
   )
 }

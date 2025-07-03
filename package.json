@@ -48,6 +48,7 @@
     "scanbot-web-sdk": "^7.2.0",
     "sharp": "^0.34.2",
     "slick-carousel": "^1.8.1",
+    "sonner": "^2.0.5",
     "tesseract.js": "^6.0.1",
     "typeorm": "^0.3.25",
     "uuid": "^11.1.0",

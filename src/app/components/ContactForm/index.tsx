@@ -64,7 +64,7 @@ const ContactForm = () => {
     e.preventDefault()
     setLoader(true)
     
-    fetch('https://formspree.io/f/xvgrqjqp', {
+    fetch('https://formspree.io/f/xjkrzpyr', {
       method: 'POST',
       headers: { 'Content-type': 'application/json' },
       body: JSON.stringify({

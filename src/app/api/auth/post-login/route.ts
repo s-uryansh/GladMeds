@@ -21,14 +21,14 @@ export async function GET(req: NextRequest) {
       { 
         id: session.user.id, 
         email: session.user.email,
-        name: session.user.name // Add name if available
+        name: session.user.name 
       },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
 
-    const redirectUrl = new URL('/profile', req.url); // or '/dashboard'
+    const redirectUrl = new URL('/profile', req.url); 
     
     const response = NextResponse.redirect(redirectUrl);
 

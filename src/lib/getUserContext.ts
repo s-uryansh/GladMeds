@@ -67,12 +67,7 @@ export async function getUserMedicalContext(userId: string) {
 
 📄 Extended Profile:
 - DOB: ${profile.date_of_birth}
-- Marital Status: ${profile.marital_status}
-- ID Proof: ${profile.id_proof_type} - ${profile.id_proof_number}
 - Occupation: ${profile.occupation}
-- Nationality: ${profile.nationality}
-- Guardian: ${profile.guardian_name} (${profile.guardian_relation})
-- Religion: ${profile.religion}
 - Languages: ${profile.preferred_language}
 
 🩺 Medical Summary:

@@ -192,3 +192,26 @@ Hello Suryansh! I'm here to provide you with information based on the details yo
 If there's anything specific you'd like to know or discuss regarding your health or any other information, feel free to ask! I'm here to help.
 ----------------------
 
+
+[2025-07-03T15:48:22.500Z]
+--- USER QUERY ---
+Hey what do u know about me
+
+
+--- AI RESPONSE ---
+Nice to meet you, Suryansh! Based on the information provided, here's what I know about you:
+
+* You're a 19-year-old male student.
+* Your blood group is B-.
+* You were born on November 11, 2005.
+* You speak Hindi, English, and Punjabi.
+* You have a history of allergies to cats.
+* You experience stomachaches, which is a chronic condition for you.
+* You've had a past surgery due to an intestine overlap.
+* You're currently taking some medications (though the names aren't specified).
+* You've been vaccinated.
+* You lead a relatively normal lifestyle as a BTech student in India.
+
+That's about it! I don't have any information about your medical history records, as none were found. If you have any specific questions or concerns about your health, feel free to ask, and I'll do my best to help.
+----------------------
+
