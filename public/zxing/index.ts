@@ -11,6 +11,8 @@ import {
 } from "../share.js";
 import zxingModuleFactory from "./zxing_full.js";
 
+const FULL_HASH = "mock-hash-value";
+
 export function prepareZXingModule(
   options?: Merge<PrepareZXingModuleOptions, { fireImmediately?: false }>,
 ): void;

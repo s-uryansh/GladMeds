@@ -1,4 +1,4 @@
-import type { ZXingFullModuleFactory } from "../share.js";
+import type { ZXingFullModule, ZXingModuleOverrides } from "../share.js";
 
-declare const ZXing: ZXingFullModuleFactory;
-export default ZXing;
+declare function zxingModuleFactory(overrides?: ZXingModuleOverrides): Promise<ZXingFullModule>;
+export default zxingModuleFactory;

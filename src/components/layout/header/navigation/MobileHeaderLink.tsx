@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Link from "next/link";
-import { HeaderItem } from "../../../../types/menu";
+import { HeaderItem } from "@/app/types/menu";
 
 const MobileHeaderLink: React.FC<{ item: HeaderItem }> = ({ item }) => {
   const [submenuOpen, setSubmenuOpen] = useState(false);

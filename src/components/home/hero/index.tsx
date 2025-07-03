@@ -4,7 +4,7 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import React from 'react'
 import { Icon } from '@iconify/react/dist/iconify.js'
-import GetStartedForm from '@/app/components/home/hero/GetStartedForm'
+import GetStartedForm from '@/components/home/hero/GetStartedForm'
 
 const Banner = () => {
   const [showFormModal, setShowFormModal] = useState(false)

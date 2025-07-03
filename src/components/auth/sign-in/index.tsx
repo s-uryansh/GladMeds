@@ -7,7 +7,11 @@ import SocialSignIn from '../SocialSignIn';
 import Logo from '../../layout/header/logo';
 import Loader from '../../shared/Loader';
 
-const Signin = ({onSuccess}: {onSuccess: () => void}) => {
+type SigninProps = {
+  onSuccess?: () => void;
+};
+
+const Signin = ({ onSuccess }: SigninProps) => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,7 +37,9 @@ const Signin = ({onSuccess}: {onSuccess: () => void}) => {
         toast.success('Login successful!');
         router.refresh(); 
         router.push('/'); 
-        onSuccess();
+        if (onSuccess) {
+          onSuccess();
+        }
       }
     } catch (error) {
       console.error('Login error:', error);

@@ -1,6 +1,6 @@
 
-import Signin from "@/app/components/auth/sign-in";
-import Breadcrumb from "@/app/components/shared/Breadcrumb";
+import Signin from "@/components/auth/sign-in";
+import Breadcrumb from "@/components/shared/Breadcrumb";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

@@ -1,7 +1,7 @@
 'use client'
 
 import React,{ useEffect, useState } from 'react'
-import ChangePassword from '@/app/components/change-password/page';
+import ChangePassword from '@/components/change-password/page';
 
 const genderOptions = ['male', 'female', 'other']
 const dropdownOptions: Record<string, string[]> = {

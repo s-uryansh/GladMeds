@@ -1,11 +1,9 @@
-
-import SignUp from "@/app/components/auth/sign-up";
-import Breadcrumb from "@/app/components/shared/Breadcrumb";
+import SignUp from "@/components/auth/sign-up";
+import Breadcrumb from "@/components/shared/Breadcrumb";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title:
-    "Sign Up | Property",
+  title: "Sign Up | Property",
 };
 
 const SignupPage = () => {

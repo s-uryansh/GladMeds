@@ -1,11 +1,11 @@
 import { Inter } from 'next/font/google'
 import './globals.css'
 import Aoscompo from '@/lib/utils/aos'
-import ScrollToTop from './components/scroll-to-top'
-import Header from './components/layout/header'
-import Footer from './components/layout/footer'
+import ScrollToTop from '@/components/scroll-to-top'
+import Header from '@/components/layout/header'
+import Footer from '@/components/layout/footer'
 import { Toaster } from 'react-hot-toast';
-import Providers from '@/app/components/Providers';
+import Providers from '@/components/Providers';
 
 const font = Inter({ subsets: ['latin'] })
 

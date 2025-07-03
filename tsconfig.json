@@ -33,7 +33,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-, "src/app/api/auth/[...nextauth]"  ],
+, "src/app/api/auth/[...nextauth]", "public/bindings/index.ts"  ],
   "exclude": [
     "node_modules"
   ]

@@ -6,7 +6,11 @@ import toast from 'react-hot-toast';
 import Logo from '../../layout/header/logo'
 import TermsModal from '../legal/TermsModal';
 
-const SignUp = ({onSuccess}: {onSuccess: () => void}) => {
+interface SignUpProps {
+  onSuccess?: () => void;
+}
+
+const SignUp = ({ onSuccess }: SignUpProps) => {
   const [form, setForm] = useState({
     full_name: '',
     email: '',
@@ -71,7 +75,9 @@ const SignUp = ({onSuccess}: {onSuccess: () => void}) => {
         })
         setTermsAccepted(false)
         toast.success('Registration successful!');
-        onSuccess();
+        if (onSuccess) {
+          onSuccess();
+        }
       }
     } catch (err) {
       setError('Something went wrong!')
