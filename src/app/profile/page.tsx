@@ -160,16 +160,6 @@ export default function ProfilePage() {
     }
   }
 
-  const handleDeletePDF = async (id: string) => {
-    const res = await fetch(`/api/delete-pdf/${id}`, { method: 'DELETE', credentials: 'include' })
-    if (res.ok) {
-      setPdfs((prev) => prev.filter((pdf) => pdf.id !== id))
-      setMessage('PDF deleted')
-    } else {
-      setMessage('Failed to delete PDF')
-    }
-  }
-
   const handleLogout = async () => {
     const res = await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
     if (res.ok) {
@@ -362,7 +352,6 @@ export default function ProfilePage() {
                     </div>
                     <div className="flex gap-3">
                       <a href={pdf.file_path} target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-secondary">View</a>
-                      <button onClick={() => handleDeletePDF(pdf.id)} className="text-red-400 hover:underline">Delete</button>
                     </div>
                   </li>
                 ))}

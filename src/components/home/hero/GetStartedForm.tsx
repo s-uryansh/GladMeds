@@ -66,7 +66,6 @@ const GetStartedForm: React.FC<Props> = ({ userGender, setShowFormModal }) => {
 
   const [idError, setIdError] = useState('')
   const [message, setMessage] = useState('')
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -120,6 +119,7 @@ const GetStartedForm: React.FC<Props> = ({ userGender, setShowFormModal }) => {
       setMessage('Profile uploaded successfully!')
       setTimeout(() => {
         setShowFormModal(false)
+        window.location.reload();
       }, 1500)
     } else {
       setMessage(result.error || 'Upload failed')
@@ -204,7 +204,7 @@ const GetStartedForm: React.FC<Props> = ({ userGender, setShowFormModal }) => {
           ))}
 
         {/* Show Menstrual Info only if female */}
-        {userGender === 'female' && (
+        {userGender === 'FEMALE' && (
           <input
             type='text'
             name='menstrual_info'

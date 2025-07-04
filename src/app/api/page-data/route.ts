@@ -11,7 +11,7 @@ import { FaqType } from '@/app/types/faq'
 const Headerdata: HeaderItem[] = [
   { label: 'Home', href: '/' },
   { label: 'AI Assistant', href: '/ai-assistant' },
-  { label: 'Medicine Scanner', href: '/scanner' }, 
+  { label: 'Product Scanner', href: '/scanner' }, 
   { label: 'Emergency SOS', href: '/sos' }
 ];
 
