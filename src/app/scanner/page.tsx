@@ -53,7 +53,7 @@ export default function ScannerPage() {
   return (
     <section className="bg-body-bg min-h-screen flex items-center justify-center py-20">
       <div className="container flex flex-col items-center justify-center max-w-3xl w-full px-4">
-        <h1 className="text-center mb-8">Scan Medicine QR or Barcode</h1>
+        <h1 className="text-center mb-8">Scan Product QR or Barcode</h1>
 
         <div className="w-full max-w-md mb-6">
           

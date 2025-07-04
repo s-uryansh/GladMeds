@@ -12,7 +12,6 @@ export async function POST(req: NextRequest) {
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
   const barcode = await scanBarcodeFromImage(buffer);
-  console.log(barcode, " barcode");
 
   const productNameFromForm = formData.get('productName')?.toString().trim() || '';
 
@@ -38,7 +37,6 @@ export async function POST(req: NextRequest) {
 
   const promptIngredients = `What are the ingredients found in ${productNameFromForm} `
   const ingreds = await queryGroq(promptIngredients);  
-
   const prompt = `
   User profile: ${context}
 
@@ -60,8 +58,6 @@ export async function POST(req: NextRequest) {
   (This is advice from ai and is not a real doctor, for precise information best to  consult a real doctor)
   `;
 
-
   const result = await queryGroq(prompt);
-
   return NextResponse.json({ result });
 }
