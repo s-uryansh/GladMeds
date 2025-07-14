@@ -5,7 +5,6 @@ import dynamic from 'next/dynamic';
 
 const HospitalMap = dynamic(() => import('@/lib/hospitalMaps/hospitalMap'), { ssr: false });
 const CPRAnimation = dynamic(() => import('@/lib/animations/CPRAnimation'), { ssr: false });
-const RecoveryPosition = dynamic(() => import('@/lib/animations/RecoveryPosition'), { ssr: false });
 
 export default function SOSPage() {
   const [hospitals, setHospitals] = useState([]);
@@ -105,7 +104,6 @@ return (
       <section className="border border-border rounded-xl p-6 bg-tablebg space-y-6">
         <h2 className="text-lightsky text-2xl font-semibold">First Aid Tips</h2>
         <CPRAnimation />
-        <RecoveryPosition />
         <div>
           <h3 className="font-semibold text-lightblue text-lg mb-2">Recognizing Heart Attack/Stroke</h3>
           <ul className="list-disc ml-5 text-sm space-y-1">
