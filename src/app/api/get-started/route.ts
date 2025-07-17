@@ -52,23 +52,22 @@ export async function POST(req: NextRequest) {
       Object.values(data)
     );
 
-    // 🔁 Upload PDFs to Vercel Blob
     const files = formData.getAll('pdf_files') as File[];
 
     const uploads = await Promise.all(
       files.map(async (file) => {
         const buffer = Buffer.from(await file.arrayBuffer());
-        const blobFileName = `${userId}-${file.name}`;
+        const uniqueName = `${userId}-${Date.now()}-${file.name}`; 
 
-        const blob = await put(blobFileName, buffer, {
+        const blob = await put(uniqueName, buffer, {
           access: 'public',
-          token: process.env.VERCEL_BLOB_READ_WRITE_TOKEN, // needed for local dev
+          token: process.env.VERCEL_BLOB_READ_WRITE_TOKEN, 
         });
 
         const pdfId = uuidv4();
         await db.execute(
           'INSERT INTO uploaded_pdfs (id, user_id, file_name, file_path) VALUES (?, ?, ?, ?)',
-          [pdfId, userId, file.name, blob.url] // store blob.url instead of local path
+          [pdfId, userId, file.name, blob.url] 
         );
 
         return blob.url;
