@@ -1,21 +1,21 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { v4 as uuidv4 } from 'uuid'
-import { createConnection } from '@/lib/db'
-import { getUserIdFromToken } from '@/lib/auth' 
-import { writeFile } from 'fs/promises'
+import { NextRequest, NextResponse } from 'next/server';
+import { v4 as uuidv4 } from 'uuid';
+import { createConnection } from '@/lib/db';
+import { getUserIdFromToken } from '@/lib/auth';
+import { put } from '@vercel/blob';
+
 export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData()
-
-    const userId = getUserIdFromToken(req); 
+    const formData = await req.formData();
+    const userId = getUserIdFromToken(req);
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const profileId = userId
-    const db = await createConnection()
+    const profileId = userId;
+    const db = await createConnection();
 
-    const getField = (name: string) => formData.get(name)?.toString() || null
+    const getField = (name: string) => formData.get(name)?.toString() || null;
 
     const data = {
       id: profileId,
@@ -39,10 +39,9 @@ export async function POST(req: NextRequest) {
       family_medical_history: getField('family_medical_history'),
       lifestyle_details: getField('lifestyle_details'),
       menstrual_info: getField('menstrual_info'),
-    }
+    };
 
-    // Insert into user_profiles
-    const [result] = await db.execute(
+    await db.execute(
       `INSERT INTO user_profiles (
         id, user_id, date_of_birth, marital_status, id_proof_type, id_proof_number,
         occupation, nationality, guardian_name, guardian_relation, guardian_phone,
@@ -51,36 +50,37 @@ export async function POST(req: NextRequest) {
         family_medical_history, lifestyle_details, menstrual_info
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       Object.values(data)
-    )
+    );
 
-    // Handle PDFs
-    const files = formData.getAll('pdf_files') as File[]
+    // 🔁 Upload PDFs to Vercel Blob
+    const files = formData.getAll('pdf_files') as File[];
 
     const uploads = await Promise.all(
       files.map(async (file) => {
-        const buffer = Buffer.from(await file.arrayBuffer())
-        const fileName = `${userId}-${file.name}`
-        const filePath = `/uploads/${fileName}` 
-        const fsPath = `./public${filePath}`
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const blobFileName = `${userId}-${file.name}`;
 
-        await writeFile(fsPath, buffer)
+        const blob = await put(blobFileName, buffer, {
+          access: 'public',
+          token: process.env.VERCEL_BLOB_READ_WRITE_TOKEN, // needed for local dev
+        });
 
         const pdfId = uuidv4();
         await db.execute(
           'INSERT INTO uploaded_pdfs (id, user_id, file_name, file_path) VALUES (?, ?, ?, ?)',
-          [pdfId, userId, file.name, filePath]
-        )
+          [pdfId, userId, file.name, blob.url] // store blob.url instead of local path
+        );
 
-        return filePath
+        return blob.url;
       })
-    )
+    );
 
     return NextResponse.json({
       message: 'Profile and PDFs uploaded successfully',
       uploaded_files: uploads,
-    })
+    });
   } catch (error) {
-    console.error(error)
-    return NextResponse.json({ error: 'Something went wrong' }, { status: 500 })
+    console.error(error);
+    return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
   }
 }
