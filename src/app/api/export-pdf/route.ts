@@ -165,8 +165,16 @@ export async function GET(req: NextRequest) {
 
     for (const pdf of pdfRows as any[]) {
       try {
-        const filePath = path.join(process.cwd(), 'public', pdf.file_path);
-        const fileBytes = await fs.readFile(filePath);
+        const res = await fetch(pdf.file_path, {
+          headers: {
+            Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`,
+          },
+        });
+        if (!res.ok) throw new Error(`Failed to fetch PDF: ${pdf.file_path}`);
+
+        // const filePath = path.join(process.cwd(), 'public', pdf.file_path);
+        // const fileBytes = await fs.readFile(filePath);
+        const fileBytes = new Uint8Array(await res.arrayBuffer());
         const userPdf = await PDFDocument.load(fileBytes);
         const userPages = await mergedPdf.copyPages(userPdf, userPdf.getPageIndices());
         userPages.forEach(p => mergedPdf.addPage(p));
