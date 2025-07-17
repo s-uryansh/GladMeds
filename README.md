@@ -51,5 +51,6 @@
 
 - Multi-language support
 - Family profile management
+- Mobile App
 
 ---
