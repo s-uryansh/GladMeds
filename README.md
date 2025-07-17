@@ -4,8 +4,6 @@
 
 ---
 
-## Features
-
 - **AI Medical Assistant**  
     Conversational AI for health queries, medicine checks, and personalized suggestions based on user profile and history.  
     *Disclaimer: AI suggestions are not a substitute for professional medical advice.*
@@ -21,6 +19,9 @@
 
 - **Nearby Hospital Locator**  
     Find hospitals within your area, view contact info, directions, and open status.
+
+- **Google SSO**  
+    Sign in quickly and securely using your Google account for seamless onboarding and authentication.
 
 - **Terms & Consent with Privacy Controls**  
     Transparent terms, explicit consent, and full control over your data (download or delete anytime).  
@@ -48,7 +49,6 @@
 
 ## Future Roadmap
 
-- Removed SSO (Need fixes)
 - Multi-language support
 - Family profile management
 
