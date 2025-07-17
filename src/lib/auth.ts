@@ -3,13 +3,9 @@ import { NextRequest } from 'next/server';
 import GoogleProvider from 'next-auth/providers/google';
 import { v4 as uuidv4 } from 'uuid';
 import mysql from 'mysql2/promise';
-import crypto from "crypto";
 import { NextAuthOptions, User, Session, SessionStrategy } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import type { RowDataPacket } from "mysql2";
-import bcrypt from 'bcrypt';
-import { sendPasswordEmail } from './nodemailer';
-
 
 const db = mysql.createPool({
   host: process.env.DB_HOST!,
@@ -32,16 +28,22 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      httpOptions: {
-        agent,
-      },
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
   ],
   session: {
     strategy: "jwt" as SessionStrategy,
   },
+  debug: process.env.NODE_ENV === 'development',
   callbacks: {
     async signIn({ user }: { user: User }) {
+      console.log('SignIn callback triggered for user:', user.email);
       if (!user.email) return false;
 
       const [rows] = await db.query<RowDataPacket[]>(
@@ -51,18 +53,26 @@ export const authOptions: NextAuthOptions = {
       const dbUser = rows[0]; 
 
       if (!dbUser) {
+        console.log('Creating new user for:', user.email);
         const id = crypto.randomUUID();
         const randomPassword = generateRandomPassword();
         const hashedPassword = await bcrypt.hash(randomPassword, 10);
         
         await db.query(
-          "INSERT INTO users (id, email, full_name, password_hash, age, created_at) VALUES (?, ?, ?, ?, 0, NOW())",
-          [id, user.email, user.name, hashedPassword]
+          "INSERT INTO users (id, email, full_name, password_hash, age, gender, terms_accepted, terms_accepted_at, terms_version, created_at) VALUES (?, ?, ?, ?, 25, 'other', true, NOW(), '1.0', NOW())",
+          [id, user.email, user.name || 'Google User', hashedPassword]
         );
-        await sendPasswordEmail(user.email, randomPassword, user.name || 'User');
+        
+        // Send password email but don't fail if it doesn't work
+        try {
+          await sendPasswordEmail(user.email, randomPassword, user.name || 'User');
+        } catch (error) {
+          console.error('Failed to send password email:', error);
+        }
         
         (user as any).id = id;
       } else {
+        console.log('Existing user found:', user.email);
         (user as any).id = dbUser.id;
       }
 
@@ -82,17 +92,29 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-     async redirect({ url, baseUrl }) {
-      return `${baseUrl}/api/auth/post-login`;
+    
+    async redirect({ url, baseUrl }) {
+      console.log('Redirect callback - url:', url, 'baseUrl:', baseUrl);
+      
+      // If it's a callback URL, redirect to post-login
+      if (url.includes('/api/auth/callback')) {
+        return `${baseUrl}/api/auth/post-login`;
+      }
+      
+      // If it's already our post-login URL, allow it
+      if (url.startsWith(`${baseUrl}/api/auth/post-login`)) {
+        return url;
+      }
+      
+      // Default to home page
+      return baseUrl;
     },
   },
   pages: {
-        // signIn: '/auth/signin',
-        error: '/auth/error',
-    },
+    error: '/auth/error',
+  },
   secret: process.env.NEXTAUTH_SECRET,
-
-}
+};
 export function getUserIdFromToken(req: NextRequest): string | null {
   try {
     const token = req.cookies.get('token')?.value;

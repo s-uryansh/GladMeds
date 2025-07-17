@@ -64,15 +64,16 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, user }: { token: JWT; user?: User }) {
+    console.log('Session in post-login:', session);
       if (user && (user as any).id) {
         token.id = (user as any).id;
       }
-      return token;
+      return NextResponse.redirect(new URL('/?error=session-failed', req.url));
     },
 
     async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user && token.id) {
-        (session.user as any).id = token.id as string;
+      return NextResponse.redirect(new URL('/?error=server-error', req.url));
       }
       return session;
     },
@@ -85,10 +86,10 @@ export const authOptions: NextAuthOptions = {
         error: '/auth/error',
     },
   secret: process.env.NEXTAUTH_SECRET,
-
-}
+    const redirectUrl = new URL('/', req.url); 
 export function getUserIdFromToken(req: NextRequest): string | null {
   try {
+    console.log('Post-login route called');
     const token = req.cookies.get('token')?.value;
 
     if (!token) return null;
@@ -97,10 +98,11 @@ export function getUserIdFromToken(req: NextRequest): string | null {
       id: string;
       email: string;
     };
+    console.log('Redirecting to:', redirectUrl.toString());
 
     return decoded.id;
   } catch (error) {
     console.error('Token verification failed:', error);
-    return null;
+    return NextResponse.redirect(new URL('/?error=server-error', req.url));
   }
 }

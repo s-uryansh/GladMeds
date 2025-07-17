@@ -5,7 +5,10 @@ import React from 'react';
 
 const SocialSignIn = () => {
   const handleGoogleSignIn = () => {
-    signIn('google', { callbackUrl: '/' }); // You can customize callbackUrl
+    signIn('google', { 
+      callbackUrl: window.location.origin + '/api/auth/post-login',
+      redirect: true 
+    });
   };
 
   return (

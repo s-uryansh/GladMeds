@@ -1,16 +1,18 @@
-// middleware.ts
 import { NextRequest, NextResponse } from 'next/server'
 
 export function middleware(req: NextRequest) {
   const url = req.nextUrl
 
-  if (url.pathname === '/api/auth/callback/google') {
-    return NextResponse.redirect(new URL('/post-login', req.url))
+  // Handle Google OAuth callback
+  if (url.pathname.startsWith('/api/auth/callback/google')) {
+    console.log('Google callback intercepted:', url.pathname);
+    // Let NextAuth handle the callback naturally
+    return NextResponse.next();
   }
 
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/api/:path*', '/api/auth/callback/google'], 
+  matcher: ['/api/auth/callback/:path*'], 
 };
