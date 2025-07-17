@@ -1,19 +1,6 @@
-import jwt from 'jsonwebtoken';
-import { NextRequest } from 'next/server';
-import GoogleProvider from 'next-auth/providers/google';
-import { v4 as uuidv4 } from 'uuid';
+import { NextRequest, NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
-import crypto from "crypto";
-import { NextAuthOptions, User, Session, SessionStrategy } from "next-auth";
-import { JWT } from "next-auth/jwt";
-import type { RowDataPacket } from "mysql2";
-import https from 'https';
 import bcrypt from 'bcryptjs';
-import { sendPasswordEmail } from '@/lib/nodemailer';
-
-const agent = new https.Agent({
-  family: 4, 
-});
 
 const db = mysql.createPool({
   host: process.env.DB_HOST!,
@@ -22,78 +9,50 @@ const db = mysql.createPool({
   database: process.env.DB_NAME!,
 });
 
-function generateRandomPassword(length = 12): string {
-  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
-  let password = "";
-  for (let i = 0; i < length; i++) {
-    password += charset.charAt(Math.floor(Math.random() * charset.length));
+export async function POST(req: NextRequest) {
+  try {
+    const { currentPassword, newPassword } = await req.json();
+    const userEmail = req.cookies.get('user_email')?.value; // Or get from session/JWT
+
+    if (!userEmail) {
+      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 });
+    }
+
+    if (!currentPassword || !newPassword) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    if (newPassword.length < 8) {
+      return NextResponse.json({ error: 'New password must be at least 8 characters long' }, { status: 400 });
+    }
+
+    // Fetch user from DB
+    const [rows] = await db.query(
+      'SELECT password_hash FROM users WHERE email = ?',
+      [userEmail]
+    );
+    const user = (rows as any)[0];
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Check current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!isMatch) {
+      return NextResponse.json({ error: 'Current password is incorrect' }, { status: 401 });
+    }
+
+    // Hash new password and update
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await db.query(
+      'UPDATE users SET password_hash = ? WHERE email = ?',
+      [newHash, userEmail]
+    );
+
+    return NextResponse.json({ message: 'Password changed successfully!' }, { status: 200 });
+  } catch (error) {
+    console.error('Change password error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-  return password;
-}
-
-export const authOptions: NextAuthOptions = {
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      httpOptions: {
-        agent,
-      },
-    }),
-  ],
-  session: {
-    strategy: "jwt" as SessionStrategy,
-  },
-  callbacks: {
-    async signIn({ user }: { user: User }) {
-      if (!user.email) return false;
-
-      const [rows] = await db.query<RowDataPacket[]>(
-        "SELECT * FROM users WHERE email = ?", 
-        [user.email]
-      );
-      const dbUser = rows[0]; 
-
-      if (!dbUser) {
-        const id = crypto.randomUUID();
-        const randomPassword = generateRandomPassword();
-        const hashedPassword = await bcrypt.hash(randomPassword, 10);
-        
-        await db.query(
-          "INSERT INTO users (id, email, full_name, password_hash, age, created_at) VALUES (?, ?, ?, ?, 0, NOW())",
-          [id, user.email, user.name, hashedPassword]
-        );
-        await sendPasswordEmail(user.email, randomPassword, user.name || 'User');
-        
-        (user as any).id = id;
-      } else {
-        (user as any).id = dbUser.id;
-      }
-
-      return true;
-    },
-
-    async jwt({ token, user }: { token: JWT; user?: User }) {
-      if (user && (user as any).id) {
-        token.id = (user as any).id;
-      }
-      return token;
-    },
-
-    async session({ session, token }: { session: Session; token: JWT }) {
-      if (session.user && token.id) {
-        (session.user as any).id = token.id as string;
-      }
-      return session;
-    },
-     async redirect({ url, baseUrl }) {
-      return `${baseUrl}/api/auth/post-login`;
-    },
-  },
-  pages: {
-        // signIn: '/auth/signin',
-        error: '/auth/error',
-    },
-  secret: process.env.NEXTAUTH_SECRET,
-
 }
