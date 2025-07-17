@@ -97,20 +97,3 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 
 }
-export function getUserIdFromToken(req: NextRequest): string | null {
-  try {
-    const token = req.cookies.get('token')?.value;
-
-    if (!token) return null;
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      id: string;
-      email: string;
-    };
-
-    return decoded.id;
-  } catch (error) {
-    console.error('Token verification failed:', error);
-    return null;
-  }
-}
