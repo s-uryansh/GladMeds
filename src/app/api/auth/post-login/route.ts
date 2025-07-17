@@ -29,6 +29,7 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
+      },
     }),
   ],
   session: {
@@ -64,16 +65,15 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, user }: { token: JWT; user?: User }) {
-    console.log('Session in post-login:', session);
       if (user && (user as any).id) {
         token.id = (user as any).id;
       }
-      return NextResponse.redirect(new URL('/?error=session-failed', req.url));
+      return token;
     },
 
     async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user && token.id) {
-      return NextResponse.redirect(new URL('/?error=server-error', req.url));
+        (session.user as any).id = token.id as string;
       }
       return session;
     },
@@ -86,10 +86,10 @@ export const authOptions: NextAuthOptions = {
         error: '/auth/error',
     },
   secret: process.env.NEXTAUTH_SECRET,
-    const redirectUrl = new URL('/', req.url); 
+
+};
 export function getUserIdFromToken(req: NextRequest): string | null {
   try {
-    console.log('Post-login route called');
     const token = req.cookies.get('token')?.value;
 
     if (!token) return null;
@@ -98,11 +98,10 @@ export function getUserIdFromToken(req: NextRequest): string | null {
       id: string;
       email: string;
     };
-    console.log('Redirecting to:', redirectUrl.toString());
 
     return decoded.id;
   } catch (error) {
     console.error('Token verification failed:', error);
-    return NextResponse.redirect(new URL('/?error=server-error', req.url));
+    return null;
   }
 }
