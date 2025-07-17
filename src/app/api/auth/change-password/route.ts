@@ -9,7 +9,7 @@ import { JWT } from "next-auth/jwt";
 import type { RowDataPacket } from "mysql2";
 import https from 'https';
 import bcrypt from 'bcrypt';
-import { sendPasswordEmail } from './nodemailer';
+import { sendPasswordEmail } from '@/lib/nodemailer';
 
 const agent = new https.Agent({
   family: 4, 
