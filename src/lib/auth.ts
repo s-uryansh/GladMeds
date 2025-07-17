@@ -8,7 +8,7 @@ import { NextAuthOptions, User, Session, SessionStrategy } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import type { RowDataPacket } from "mysql2";
 import https from 'https';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { sendPasswordEmail } from './nodemailer';
 
 const agent = new https.Agent({
