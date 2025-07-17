@@ -1,58 +1,116 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
 import jwt from 'jsonwebtoken';
+import { NextRequest } from 'next/server';
+import GoogleProvider from 'next-auth/providers/google';
+import { v4 as uuidv4 } from 'uuid';
+import mysql from 'mysql2/promise';
+import crypto from "crypto";
+import { NextAuthOptions, User, Session, SessionStrategy } from "next-auth";
+import { JWT } from "next-auth/jwt";
+import type { RowDataPacket } from "mysql2";
+import https from 'https';
 import bcrypt from 'bcrypt';
+import { sendPasswordEmail } from './nodemailer';
 
-export async function POST(req: NextRequest) {
+const agent = new https.Agent({
+  family: 4, 
+});
+
+const db = mysql.createPool({
+  host: process.env.DB_HOST!,
+  user: process.env.DB_USER!,
+  password: process.env.DB_PASS!,
+  database: process.env.DB_NAME!,
+});
+
+function generateRandomPassword(length = 12): string {
+  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+  let password = "";
+  for (let i = 0; i < length; i++) {
+    password += charset.charAt(Math.floor(Math.random() * charset.length));
+  }
+  return password;
+}
+
+export const authOptions: NextAuthOptions = {
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      httpOptions: {
+        agent,
+      },
+    }),
+  ],
+  session: {
+    strategy: "jwt" as SessionStrategy,
+  },
+  callbacks: {
+    async signIn({ user }: { user: User }) {
+      if (!user.email) return false;
+
+      const [rows] = await db.query<RowDataPacket[]>(
+        "SELECT * FROM users WHERE email = ?", 
+        [user.email]
+      );
+      const dbUser = rows[0]; 
+
+      if (!dbUser) {
+        const id = crypto.randomUUID();
+        const randomPassword = generateRandomPassword();
+        const hashedPassword = await bcrypt.hash(randomPassword, 10);
+        
+        await db.query(
+          "INSERT INTO users (id, email, full_name, password_hash, age, created_at) VALUES (?, ?, ?, ?, 0, NOW())",
+          [id, user.email, user.name, hashedPassword]
+        );
+        await sendPasswordEmail(user.email, randomPassword, user.name || 'User');
+        
+        (user as any).id = id;
+      } else {
+        (user as any).id = dbUser.id;
+      }
+
+      return true;
+    },
+
+    async jwt({ token, user }: { token: JWT; user?: User }) {
+      if (user && (user as any).id) {
+        token.id = (user as any).id;
+      }
+      return token;
+    },
+
+    async session({ session, token }: { session: Session; token: JWT }) {
+      if (session.user && token.id) {
+        (session.user as any).id = token.id as string;
+      }
+      return session;
+    },
+     async redirect({ url, baseUrl }) {
+      return `${baseUrl}/api/auth/post-login`;
+    },
+  },
+  pages: {
+        // signIn: '/auth/signin',
+        error: '/auth/error',
+    },
+  secret: process.env.NEXTAUTH_SECRET,
+
+}
+export function getUserIdFromToken(req: NextRequest): string | null {
   try {
     const token = req.cookies.get('token')?.value;
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
-    const payload: any = jwt.verify(token, process.env.JWT_SECRET!);
-    const userId = payload.id;
+    if (!token) return null;
 
-    const { currentPassword, newPassword } = await req.json();
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      id: string;
+      email: string;
+    };
 
-    if (!currentPassword || !newPassword) {
-      return NextResponse.json({ error: 'Current password and new password are required' }, { status: 400 });
-    }
-
-    if (newPassword.length < 8) {
-      return NextResponse.json({ error: 'New password must be at least 8 characters long' }, { status: 400 });
-    }
-
-    // Get current user
-    const [rows]: any = await db.execute(
-      'SELECT password_hash FROM users WHERE id = ?',
-      [userId]
-    );
-
-    if (rows.length === 0) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    const user = rows[0];
-
-    // Verify current password
-    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password_hash);
-    if (!isCurrentPasswordValid) {
-      return NextResponse.json({ error: 'Current password is incorrect' }, { status: 400 });
-    }
-
-    // Hash new password
-    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-
-    // Update password in database
-    await db.execute(
-      'UPDATE users SET password_hash = ? WHERE id = ?',
-      [hashedNewPassword, userId]
-    );
-
-    return NextResponse.json({ message: 'Password changed successfully' });
+    return decoded.id;
   } catch (error) {
-    console.error('Change password error:', error);
-    return NextResponse.json({ error: 'Failed to change password' }, { status: 500 });
+    console.error('Token verification failed:', error);
+    return null;
   }
 }

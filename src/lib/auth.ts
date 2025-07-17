@@ -7,13 +7,9 @@ import crypto from "crypto";
 import { NextAuthOptions, User, Session, SessionStrategy } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import type { RowDataPacket } from "mysql2";
-import https from 'https';
 import bcrypt from 'bcrypt';
 import { sendPasswordEmail } from './nodemailer';
 
-const agent = new https.Agent({
-  family: 4, 
-});
 
 const db = mysql.createPool({
   host: process.env.DB_HOST!,

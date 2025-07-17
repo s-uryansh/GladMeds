@@ -17,7 +17,6 @@
     "@zxing/library": "^0.21.3",
     "aos": "^2.3.4",
     "axios": "^1.7.2",
-    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "canvas": "^3.1.2",
     "date-fns": "^3.4.0",
