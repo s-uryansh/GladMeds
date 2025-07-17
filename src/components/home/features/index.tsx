@@ -34,10 +34,10 @@ const Features = () => {
               FEATURES
             </p>
             <h2 className='font-semibold mb-6 text-center max-w-2xl mx-auto sm:leading-14 capitalize'>
-              The Most Trusted Platform for Digital Currency
+              AI-powered medical and emergency assistant
             </h2>
             <p className='lg:text-lg font-normal text-lightpurple text-center max-w-2xl mx-auto '>
-              Discover powerful tools designed to help you securely buy, sell, and manage your crypto assets — trusted by traders, investors, and businesses worldwide.
+              GladMeds delivers smart health advice, urgent care tools, and privacy-first health data management—empowering you with secure, personalized healthcare whenever you need it.
             </p>
           </div>
           {/* Column-2 */}
