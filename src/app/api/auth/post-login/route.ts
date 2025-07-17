@@ -1,19 +1,20 @@
+import { getServerSession } from 'next-auth';
+import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
-import { NextRequest } from 'next/server';
 import GoogleProvider from 'next-auth/providers/google';
 import { v4 as uuidv4 } from 'uuid';
 import mysql from 'mysql2/promise';
+import bcrypt from 'bcryptjs';
 import { NextAuthOptions, User, Session, SessionStrategy } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import type { RowDataPacket } from "mysql2";
-
+import { sendPasswordEmail } from '@/lib/nodemailer';
 const db = mysql.createPool({
   host: process.env.DB_HOST!,
   user: process.env.DB_USER!,
   password: process.env.DB_PASS!,
   database: process.env.DB_NAME!,
 });
-
 function generateRandomPassword(length = 12): string {
   const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
   let password = "";
@@ -22,7 +23,6 @@ function generateRandomPassword(length = 12): string {
   }
   return password;
 }
-
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -105,3 +105,48 @@ export function getUserIdFromToken(req: NextRequest): string | null {
     return null;
   }
 }
+
+// export async function GET(req: NextRequest) {
+//   try {
+//     const session = await getServerSession(authOptions);
+
+//     if (!session?.user?.email || !session.user.id) {
+//       console.error('Invalid session:', session);
+//       return NextResponse.redirect(new URL('/auth/error?message=session-failed', req.url));
+//     }
+
+//     if (!process.env.JWT_SECRET) {
+//       console.error('JWT_SECRET is not defined');
+//       return NextResponse.redirect(new URL('/auth/error?message=server-error', req.url));
+//     }
+
+//     const token = jwt.sign(
+//       { 
+//         id: session.user.id, 
+//         email: session.user.email,
+//         name: session.user.name 
+//       },
+//       process.env.JWT_SECRET,
+//       { expiresIn: '7d' }
+//     );
+
+
+//     const redirectUrl = new URL('/profile', req.url); 
+    
+//     const response = NextResponse.redirect(redirectUrl);
+
+//     response.cookies.set('token', token, {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === 'production',
+//       path: '/',
+//       maxAge: 60 * 60 * 24 * 7, // 7 days
+//       sameSite: 'lax',
+//     });
+
+//     return response;
+
+//   } catch (error) {
+//     console.error('Post-login error:', error);
+//     return NextResponse.redirect(new URL('/auth/error?message=server-error', req.url));
+//   }
+// }

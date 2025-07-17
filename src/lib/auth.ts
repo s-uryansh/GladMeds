@@ -3,9 +3,17 @@ import { NextRequest } from 'next/server';
 import GoogleProvider from 'next-auth/providers/google';
 import { v4 as uuidv4 } from 'uuid';
 import mysql from 'mysql2/promise';
+import crypto from "crypto";
 import { NextAuthOptions, User, Session, SessionStrategy } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import type { RowDataPacket } from "mysql2";
+import https from 'https';
+import bcrypt from 'bcrypt';
+import { sendPasswordEmail } from './nodemailer';
+
+const agent = new https.Agent({
+  family: 4, 
+});
 
 const db = mysql.createPool({
   host: process.env.DB_HOST!,
@@ -132,3 +140,4 @@ export function getUserIdFromToken(req: NextRequest): string | null {
     return null;
   }
 }
+
