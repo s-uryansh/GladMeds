@@ -55,13 +55,13 @@ const Signin = ({ onSuccess }: SigninProps) => {
         <Logo />
       </div>
 
-      <SocialSignIn />
+      {/* <SocialSignIn /> */}
 
-      <span className="my-8 flex items-center justify-center text-center">
+      {/* <span className="my-8 flex items-center justify-center text-center">
         <span className="flex-grow border-t border-white/20"></span>
         <span className="mx-4 text-base text-white">OR</span>
         <span className="flex-grow border-t border-white/20"></span>
-      </span>
+      </span> */}
 
       <form onSubmit={handleSubmit}>
         <div className="mb-[22px]">

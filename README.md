@@ -48,6 +48,7 @@
 
 ## Future Roadmap
 
+- Removed SSO (Need fixes)
 - Multi-language support
 - Family profile management
 
