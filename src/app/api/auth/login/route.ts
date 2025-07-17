@@ -7,7 +7,7 @@ import crypto from "crypto";
 import { NextAuthOptions, User, Session, SessionStrategy } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import type { RowDataPacket } from "mysql2";
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { sendPasswordEmail } from '@/lib/nodemailer';
 import https from 'https';
 
