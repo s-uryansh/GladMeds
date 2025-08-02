@@ -1,4 +1,3 @@
-// /api/page-data/route.ts
 import { NextResponse } from 'next/server'
 
 import { HeaderItem } from '@/app/types/menu'

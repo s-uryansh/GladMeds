@@ -26,7 +26,7 @@ const ContactForm = () => {
         if (!res.ok) return
         const user = await res.json()
         if (user) {
-          const [first, ...last] = user.full_name.split(' ')
+          const [first, ...last] = user.fullName.split(' ')
           setFormData((prev) => ({
             ...prev,
             firstname: first,

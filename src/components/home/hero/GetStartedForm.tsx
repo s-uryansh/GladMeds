@@ -204,7 +204,7 @@ const GetStartedForm: React.FC<Props> = ({ userGender, setShowFormModal }) => {
           ))}
 
         {/* Show Menstrual Info only if female */}
-        {userGender === 'FEMALE' && (
+        {userGender === 'female' && (
           <input
             type='text'
             name='menstrual_info'

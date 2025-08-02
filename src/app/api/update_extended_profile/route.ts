@@ -1,53 +1,93 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
-import jwt from 'jsonwebtoken'
+// import { NextRequest, NextResponse } from 'next/server'
+// import { db } from '@/lib/db'
+// import jwt from 'jsonwebtoken'
+
+// export async function POST(req: NextRequest) {
+//   const formatDateForMySQL = (iso: string) => {
+//     return new Date(iso).toISOString().slice(0, 19).replace('T', ' ')
+//   }
+//     const formatDateOnly = (iso: string) => {
+//     return new Date(iso).toISOString().slice(0, 10) // Returns YYYY-MM-DD
+//   }
+//   ``
+//   try {
+//     const token = req.cookies.get('token')?.value
+//     if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+//     const payload: any = jwt.verify(token, process.env.JWT_SECRET!)
+//     const userId = payload.id
+
+//     const body = await req.json()
+
+//     delete body.created_at
+
+//     body.updated_at = formatDateForMySQL(new Date().toISOString())
+
+//     const fields = Object.keys(body)
+//     const values = fields.map((key) => {
+//       const val = body[key]
+//       if (key === 'date_of_birth' && val) {
+//         return formatDateOnly(val)
+//       }
+//       if (val instanceof Date) {
+//         return formatDateForMySQL(val.toISOString())
+//       }
+//       if (val instanceof Date) {
+//         return formatDateForMySQL(val.toISOString())
+//       }
+//       return val
+//     })
+
+//     const sets = fields.map((key) => `${key} = ?`).join(', ')
+
+//     const [result] = await db.execute(
+//       `UPDATE user_profiles SET ${sets} WHERE user_id = ?`,
+//       [...values, userId]
+//     )
+
+//     return NextResponse.json({ message: 'Extended profile updated successfully' })
+//   } catch (err) {
+//     console.error('Update extended profile error:', err)
+//     return NextResponse.json({ error: 'Failed to update extended profile' }, { status: 500 })
+//   }
+// }
+// src/app/api/profile/update/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import jwt from 'jsonwebtoken';
+import { dbConnect } from '@/lib/db';
+import UsersProfile from '@/lib/models/UsersProfile';
 
 export async function POST(req: NextRequest) {
-  const formatDateForMySQL = (iso: string) => {
-    return new Date(iso).toISOString().slice(0, 19).replace('T', ' ')
-  }
-    const formatDateOnly = (iso: string) => {
-    return new Date(iso).toISOString().slice(0, 10) // Returns YYYY-MM-DD
-  }
-  ``
+  const formatDateOnly = (iso: string) => new Date(iso).toISOString().slice(0, 10);
+
   try {
-    const token = req.cookies.get('token')?.value
-    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const token = req.cookies.get('token')?.value;
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const payload: any = jwt.verify(token, process.env.JWT_SECRET!)
-    const userId = payload.id
+    const payload: any = jwt.verify(token, process.env.JWT_SECRET!);
+    const userId = payload.id;
 
-    const body = await req.json()
+    const body = await req.json();
 
-    delete body.created_at
+    delete body.created_at;
 
-    body.updated_at = formatDateForMySQL(new Date().toISOString())
+    if (body.date_of_birth) {
+      body.date_of_birth = formatDateOnly(body.date_of_birth);
+    }
 
-    const fields = Object.keys(body)
-    const values = fields.map((key) => {
-      const val = body[key]
-      if (key === 'date_of_birth' && val) {
-        return formatDateOnly(val)
-      }
-      if (val instanceof Date) {
-        return formatDateForMySQL(val.toISOString())
-      }
-      if (val instanceof Date) {
-        return formatDateForMySQL(val.toISOString())
-      }
-      return val
-    })
+    body.updated_at = new Date();
 
-    const sets = fields.map((key) => `${key} = ?`).join(', ')
+    await dbConnect();
 
-    const [result] = await db.execute(
-      `UPDATE user_profiles SET ${sets} WHERE user_id = ?`,
-      [...values, userId]
-    )
+    const result = await UsersProfile.findOneAndUpdate(
+      { userId },
+      body,
+      { new: true, upsert: true } // Create if not exists
+    );
 
-    return NextResponse.json({ message: 'Extended profile updated successfully' })
+    return NextResponse.json({ message: 'Extended profile updated successfully', profile: result });
   } catch (err) {
-    console.error('Update extended profile error:', err)
-    return NextResponse.json({ error: 'Failed to update extended profile' }, { status: 500 })
+    console.error('Update extended profile error:', err);
+    return NextResponse.json({ error: 'Failed to update extended profile' }, { status: 500 });
   }
 }

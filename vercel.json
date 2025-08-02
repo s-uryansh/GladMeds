@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "crons": [
+    {
+      "path": "/api/db-wakey-wakey",
+      "schedule": "0 0 */6 * *"
+    }
+  ]
+}

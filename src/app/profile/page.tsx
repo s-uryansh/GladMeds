@@ -74,6 +74,7 @@ export default function ProfilePage() {
   const fetchPDFs = async () => {
     const res = await fetch('/api/users/pdfs', { credentials: 'include', cache: 'no-store' })
     const data = await res.json()
+    console.log('Fetched PDFs:', data)
     setPdfs(data.pdfs || [])
   }
 
@@ -134,7 +135,7 @@ export default function ProfilePage() {
 
   const handleExtendedInputChange = (key: string, value: string) => {
     if (key === 'id_proof_number') {
-      const idType = editedExtendedProfile.id_proof_type
+      const idType = editedExtendedProfile._id_proof_type
       if (idType) {
         const format = idFormats[idType]
         if (format && !format.test(value)) {
@@ -172,7 +173,7 @@ export default function ProfilePage() {
   if (loading) return <div className="p-10 text-lightblue text-center">Loading...</div>
   if (!user) return <div className="p-10 text-red-400 text-center">You must be signed in to view this page.</div>
 
-  const fieldsOrder = ['full_name', 'email', 'age', 'gender', 'blood_group', 'phone', 'address']
+  const fieldsOrder = ['fullName', 'email', 'age', 'gender', 'bloodGroup', 'phone', 'address']
 
   return (
     <section className="min-h-screen bg-body-bg text-lightblue">
@@ -345,14 +346,14 @@ export default function ProfilePage() {
             {pdfs.length === 0 ? <p className="text-lightblue">No PDFs uploaded yet.</p> : (
               <ul className="space-y-3">
                 {pdfs.map((pdf) => (
-                  <li key={pdf.id} className="bg-tablebg border border-border p-4 rounded-lg flex items-center justify-between">
+                  <li key={pdf._id} className="bg-tablebg border border-border p-4 rounded-lg flex items-center justify-between">
                     <div>
-                      <p className="text-lightpurple font-medium">{pdf.file_name}</p>
-                      <p className="text-xs text-lightblue">Uploaded: {new Date(pdf.uploaded_at).toLocaleString()}</p>
+                      <p className="text-lightpurple font-medium">{pdf.fileName}</p>
+                      <p className="text-xs text-lightblue">Uploaded: {new Date(pdf.uploadedAt).toLocaleString()}</p>
                     </div>
-                    <div className="flex gap-3">
+                    {/* <div className="flex gap-3">
                       <a href={pdf.file_path} target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-secondary">View</a>
-                    </div>
+                    </div> */}
                   </li>
                 ))}
               </ul>
