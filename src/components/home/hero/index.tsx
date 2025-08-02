@@ -40,6 +40,7 @@ const Banner = () => {
           credentials: 'include',
         })
         const profileData = await resProfile.json()
+        console.log('Profile Data:', profileData)
         setHasProfile(profileData.hasProfile)
       } catch (err) {
         console.error('Error fetching user/profile info', err)
