@@ -223,7 +223,6 @@ export async function GET(req: NextRequest) {
 
     // 3. Fetch all data
     const user     = await Users.findById(userId, 'fullName email age gender bloodGroup phone address createdAt');
-    console.log('User fetched:', userId);
     const profile = await UserProfile
     .findOne({ userId }, '-_id -userId -__v')
     .lean();
@@ -361,7 +360,7 @@ export async function GET(req: NextRequest) {
     }
 
     const finalBytes = await mergedPdf.save();
-    return new NextResponse(finalBytes, {
+    return new NextResponse(Buffer.from(finalBytes), {
       status: 200,
       headers: {
         'Content-Type':        'application/pdf',

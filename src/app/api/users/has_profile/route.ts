@@ -31,10 +31,8 @@ export async function GET(req: NextRequest) {
 
     const payload: any = jwt.verify(token, process.env.JWT_SECRET!);
     const userId = payload.id;
-    console.log('User ID:', userId);
     await dbConnect();
     const profile = await UserProfile.findOne({ user_id: userId });
-    console.log('Profile:', profile);
     return NextResponse.json({ hasProfile: !!profile });
   } catch (error) {
     console.error('Error fetching user profile:', error);

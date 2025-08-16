@@ -92,7 +92,6 @@ const ContactForm = () => {
       .catch((error) => {
         setLoader(false)
         toast.error('Something went wrong. Please try again.')
-        console.log('Fetch error:', error.message)
       })
   }
 

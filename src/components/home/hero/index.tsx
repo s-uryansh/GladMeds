@@ -20,7 +20,6 @@ const Banner = () => {
   const handleDbWakey = async () => {
     setDbCheckResult(null);
     try {
-      console.log('Wakey Wakey button clicked');
       const res = await fetch('/api/db-wakey-wakey');
       if (!res.ok) throw new Error(`Status ${res.status}`);
       const payload = await res.json();
@@ -40,7 +39,6 @@ const Banner = () => {
           credentials: 'include',
         })
         const profileData = await resProfile.json()
-        console.log('Profile Data:', profileData)
         setHasProfile(profileData.hasProfile)
       } catch (err) {
         console.error('Error fetching user/profile info', err)
