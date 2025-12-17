@@ -32,7 +32,7 @@
     "mongodb": "^6.18.0",
     "mongoose": "^8.17.0",
     "mysql2": "^3.14.1",
-    "next": "15.3.3",
+    "next": "15.3.8",
     "next-auth": "^4.24.11",
     "next-themes": "^0.3.0",
     "node-fetch": "^3.3.2",
